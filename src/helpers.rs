@@ -3,7 +3,6 @@ use crate::{Q, ZETA};
 
 // Some arith routines leverage dilithium https://github.com/PQClean/PQClean/tree/master/crypto_sign
 
-
 // # Algorithm 43 `BitRev8()` is not implemented; zetas are pulled from pre-computed table
 // `ZETA_TABLE_MONT`; see below (near end)
 
@@ -19,13 +18,11 @@ macro_rules! ensure {
 
 pub(crate) use ensure; // make available throughout crate
 
-
 /// Ensure all coefficients of polynomial `w` are within -lo to +hi (inclusive)
 /// Note, while both range parameters are i32, they should be both non-negative
 pub(crate) fn is_in_range(w: &R, lo: i32, hi: i32) -> bool {
     w.0.iter().all(|&e| (e >= -lo) && (e <= hi)) // success is CT, failure vartime
 }
-
 
 /// Partial Barrett-style reduction
 // Arguably very slightly faster than single-step i128 below; worth more experimentation
@@ -43,7 +40,7 @@ pub(crate) const fn partial_reduce64(a: i64) -> i32 {
     res as i32
 }
 
-#[allow(dead_code, clippy::cast_possible_truncation)]  // I may come back to this and experiment more
+#[allow(dead_code, clippy::cast_possible_truncation)] // I may come back to this and experiment more
 pub(crate) const fn partial_reduce64b(a: i64) -> i32 {
     const MM: i64 = ((1 << 64) / (Q as i128)) as i64;
     let q = (a as i128 * MM as i128) >> 64; // only top half is relevant
@@ -51,7 +48,6 @@ pub(crate) const fn partial_reduce64b(a: i64) -> i32 {
     debug_assert!(res.abs() < 2 * Q as i64, "partial_reduce64b output");
     res as i32
 }
-
 
 /// Partially reduce a signed 32-bit value mod Q ---> `-Q <~ result <~ Q`
 // Considering the positive case for `a`, bits 23 and above can be loosely
@@ -66,7 +62,6 @@ pub(crate) const fn partial_reduce32(a: i32) -> i32 {
     res
 }
 
-
 pub(crate) const fn full_reduce32(a: i32) -> i32 {
     debug_assert!(a.abs() < 2_143_289_344, "full_reduce32 input");
     let x = partial_reduce32(a); // puts us within better than -Q to +Q
@@ -75,11 +70,11 @@ pub(crate) const fn full_reduce32(a: i32) -> i32 {
     res
 }
 
-
 // Note: this is only used on 'fixed' security parameters (not secret values), so as not to impact CT
 /// Bit length required to express `a` in bits
-pub(crate) const fn bit_length(x: i32) -> usize { x.ilog2() as usize + 1 }
-
+pub(crate) const fn bit_length(x: i32) -> usize {
+    x.ilog2() as usize + 1
+}
 
 /// Mod +/- see definition on page 6.
 /// If `α` is a positive integer and `m ∈ Z` or `m ∈ Z_α` , then m mod± α denotes the unique
@@ -94,11 +89,11 @@ pub(crate) fn center_mod(m: i32) -> i32 {
     res
 }
 
-
 /// Matrix by vector multiplication; e.g., fips 203 top of page 10, first row: `w_hat` = `A_hat` mul `u_hat`
 #[must_use]
 pub(crate) fn mat_vec_mul<const K: usize, const L: usize>(
-    a_hat: &[[T; L]; K], u_hat: &[T; L],
+    a_hat: &[[T; L]; K],
+    u_hat: &[T; L],
 ) -> [T; K] {
     let mut w_hat = [T0; K];
     let u_hat_mont = to_mont(u_hat);
@@ -113,7 +108,6 @@ pub(crate) fn mat_vec_mul<const K: usize, const L: usize>(
     w_hat
 }
 
-
 // Note Algorithm 44 has been dissolved into its place of use(s)
 
 /// # Algorithm 46: `AddVectorNTT(v_hat, w_hat)` on page 45.
@@ -126,14 +120,14 @@ pub(crate) fn add_vector_ntt<const K: usize>(v_hat: &[R; K], w_hat: &[R; K]) -> 
     core::array::from_fn(|k| R(core::array::from_fn(|n| v_hat[k].0[n] + w_hat[k].0[n])))
 }
 
-
 #[allow(clippy::cast_possible_truncation)] // as i32
 pub(crate) fn to_mont<const L: usize>(vec_a: &[T; L]) -> [T; L] {
     core::array::from_fn(|l| {
-        T(core::array::from_fn(|n| partial_reduce64(i64::from(vec_a[l].0[n]) << 32)))
+        T(core::array::from_fn(|n| {
+            partial_reduce64(i64::from(vec_a[l].0[n]) << 32)
+        }))
     })
 }
-
 
 pub(crate) fn infinity_norm<const ROW: usize>(w: &[R; ROW]) -> i32 {
     w.iter()
@@ -145,7 +139,6 @@ pub(crate) fn infinity_norm<const ROW: usize>(w: &[R; ROW]) -> i32 {
         .max()
         .expect("infinity norm fails")
 }
-
 
 /// # Algorithm 49: MontgomeryReduce(𝑎) on page 50.
 /// Computes 𝑎 ⋅ 2−32 mod 𝑞.
@@ -164,7 +157,6 @@ pub(crate) const fn mont_reduce(a: i64) -> i32 {
     res as i32
 }
 
-
 // ----- The following function only runs at compile time (thus, not CT etc) -----
 
 #[allow(clippy::cast_possible_truncation)]
@@ -180,9 +172,7 @@ const fn gen_zeta_table_mont() -> [i32; 256] {
     result
 }
 
-
 pub(crate) static ZETA_TABLE_MONT: [i32; 256] = gen_zeta_table_mont();
-
 
 #[cfg(test)]
 mod tests {
@@ -200,8 +190,14 @@ mod tests {
     fn test_partial_reduce64b() {
         // Test with various input values
         assert_eq!(partial_reduce64b(0), 0);
-        assert_eq!(partial_reduce64b(i64::from(Q)), partial_reduce64(i64::from(Q)));
-        assert_eq!(partial_reduce64b(i64::from(-Q)), partial_reduce64b(i64::from(-Q)));
+        assert_eq!(
+            partial_reduce64b(i64::from(Q)),
+            partial_reduce64(i64::from(Q))
+        );
+        assert_eq!(
+            partial_reduce64b(i64::from(-Q)),
+            partial_reduce64b(i64::from(-Q))
+        );
 
         // Test with large positive and negative values
         let large_pos = i64::MAX / 64;
@@ -211,6 +207,9 @@ mod tests {
 
         // Test with some specific values
         assert_eq!(partial_reduce64b(12_345_678), partial_reduce64(12_345_678));
-        assert_eq!(partial_reduce64b(-12_345_678), partial_reduce64(-12_345_678));
+        assert_eq!(
+            partial_reduce64b(-12_345_678),
+            partial_reduce64(-12_345_678)
+        );
     }
 }

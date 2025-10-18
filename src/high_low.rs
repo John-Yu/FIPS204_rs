@@ -6,7 +6,6 @@ use crate::{D, Q};
 
 // Some arith routines leverage dilithium https://github.com/PQClean/PQClean/tree/master/crypto_sign
 
-
 /// # Algorithm 35: `Power2Round(r)` on page 40, but applied over all coefficients of K polys.
 /// Decomposes `r` into `(r1, r0)` such that `r ≡ r1·2^d + r0 mod q`.
 ///
@@ -19,12 +18,16 @@ pub(crate) fn power2round<const K: usize>(r: &[R; K]) -> ([R; K], [R; K]) {
 
     // Check input ranges
     debug_assert!(
-        r.iter().flat_map(|row| row.0).all(|element| (0..Q).contains(&element)),
+        r.iter()
+            .flat_map(|row| row.0)
+            .all(|element| (0..Q).contains(&element)),
         "power2round input"
     );
 
     let r_1: [R; K] = core::array::from_fn(|k| {
-        R(core::array::from_fn(|n| (r[k].0[n] + (1 << (D - 1)) - 1) >> D))
+        R(core::array::from_fn(|n| {
+            (r[k].0[n] + (1 << (D - 1)) - 1) >> D
+        }))
     });
 
     let r_0: [R; K] =
@@ -46,7 +49,6 @@ pub(crate) fn power2round<const K: usize>(r: &[R; K]) -> ([R; K], [R; K]) {
 
     (r_1, r_0)
 }
-
 
 /// # Algorithm 36: `Decompose(r)` on page 40.
 /// Decomposes `r` into `(r1, r0)` such that `r ≡ r1·(2·γ_2) + r0 mod q`.
@@ -90,11 +92,14 @@ pub(crate) fn decompose(gamma2: i32, r: Zq) -> (Zq, Zq) {
     let xr0 = xr0 - ((((Q - 1) / 2 - xr0) >> 31) & Q);
 
     // Reconstruct/validate outputs
-    debug_assert_eq!(r.rem_euclid(Q), (xr1 * 2 * gamma2 + xr0).rem_euclid(Q), "Alg 36: fails");
+    debug_assert_eq!(
+        r.rem_euclid(Q),
+        (xr1 * 2 * gamma2 + xr0).rem_euclid(Q),
+        "Alg 36: fails"
+    );
 
     (xr1, xr0)
 }
-
 
 /// # Algorithm 37: `HighBits(r)` on page 40.
 /// Returns `r1` from the output of `Decompose(r)`.
@@ -110,7 +115,6 @@ pub(crate) fn high_bits(gamma2: i32, r: Zq) -> Zq {
     r1
 }
 
-
 /// # Algorithm 38: `LowBits(r)` on page 41.
 /// Returns `r_0` from the output of Decompose (r).
 ///
@@ -124,7 +128,6 @@ pub(crate) fn low_bits(gamma2: i32, r: Zq) -> Zq {
     // 2: return r0
     r0
 }
-
 
 /// # Algorithm 39: `MakeHint(z,r)` on page 41.
 /// Compute hint bit indicating whether adding `z` to `r` alters the high bits of `r`.
@@ -142,7 +145,6 @@ pub(crate) fn make_hint(gamma2: i32, z: Zq, r: Zq) -> bool {
     // 3: return [[r1 != v1]]
     r1 != v1
 }
-
 
 /// # Algorithm 40: `UseHint(h,r)` on page 41.
 /// Returns the high bits of `r` adjusted according to hint `h`.

@@ -1,6 +1,6 @@
 # fips204_rs
 
-Pure Rust implementation of the [FIPS 204] Module-Lattice-Based Digital Signature Standard . 
+Pure Rust implementation of the [FIPS 204] Module-Lattice-Based Digital Signature Standard .
 
 See <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf> for a full description of the target functionality.
 
@@ -50,7 +50,7 @@ Copyright 2025 [John-Yu](https://github.com/John-Yu).
 
 ### Thanks
 
-This was inspired by [fips204](https://github.com/integritychain/fips204). 
+This was inspired by [fips204](https://github.com/integritychain/fips204).
 which is an outstanding project developed by [Eric Schorn](<eschorn@integritychain.com>).
 
 I implemented a new interface with the following changes:
@@ -58,6 +58,22 @@ I implemented a new interface with the following changes:
  - Rewrote lib.rs.
 
 Thanks to Eric Schorn.
+
+### Benchmark
+
+(OS: windows11 24H2, CPU: Intel® Core™  i7-8700K 3.70GHz, See `benchmark.rs` for the details)
+
+| function | times |
+|:-:|:-:|
+| ml_dsa_44 keygen |time:   [132.91 µs 133.88 µs 135.03 µs] |
+| ml_dsa_65 keygen |time:   [235.96 µs 237.67 µs 239.64 µs] |
+| ml_dsa_87 keygen |time:   [356.61 µs 361.96 µs 367.96 µs] |
+| ml_dsa_44 sk sign |time:   [360.91 µs 366.19 µs 371.71 µs] |
+| ml_dsa_65 sk sign |time:   [575.04 µs 584.61 µs 595.25 µs] |
+| ml_dsa_87 sk sign |time:   [676.77 µs 687.46 µs 697.95 µs] |
+| ml_dsa_44 pk verify |time:   [90.191 µs 90.879 µs 91.574 µs] |
+| ml_dsa_65 pk verify |time:   [152.40 µs 153.69 µs 155.07 µs] |
+| ml_dsa_87 pk verify |time:   [259.22 µs 261.59 µs 264.03 µs] |
 
 ### Authors
 

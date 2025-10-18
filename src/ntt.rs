@@ -4,7 +4,6 @@ use crate::helpers::{full_reduce32, mont_reduce, ZETA_TABLE_MONT};
 use crate::types::{R, T};
 use crate::Q;
 
-
 /// # Algorithm 41 NTT(w) on page 43.
 /// Computes the Number-Theoretic Transform. An inner loop over `w/w_hat` has
 /// been refactored into this function, so it processes an array of elements.
@@ -74,7 +73,6 @@ pub(crate) fn ntt<const KL: usize>(w: &[R; KL]) -> [T; KL] {
     // 20: return ŵ
     w_hat
 }
-
 
 /// # Algorithm 42 NTT−1 (`w_hat`) on page 44.
 /// Computes the inverse of the Number-Theoretic Transform. An inner loop over `w/w_hat` has

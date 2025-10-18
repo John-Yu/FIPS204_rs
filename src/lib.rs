@@ -54,7 +54,7 @@
 // Algorithm 47 ScalarVectorNTT(c,v)̂ on page 46             --> not implemented standalone
 // Algorithm 48 MatrixVectorNTT(M,v) on page 46             --> not implemented standalone
 // Algorithm 49 MontgomeryReduce(a) on page 50              --> helpers.rs
-// Types are in types.rs...
+// Types are in types.rs, traits are in traits.rs...
 
 use rand_core::CryptoRngCore;
 
@@ -189,6 +189,7 @@ macro_rules! functionality {
         }
     };
 }
+
 #[derive(Clone, Debug)]
 pub struct MlDsa44ParameterSet;
 

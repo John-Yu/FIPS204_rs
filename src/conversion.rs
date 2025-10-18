@@ -4,7 +4,6 @@ use crate::helpers::{bit_length, ensure, is_in_range};
 use crate::types::{R, R0};
 use crate::Q;
 
-
 // Algorithm 9: `IntegerToBits(x,a)` on page 28 is not needed because the pack and unpack
 // algorithms have been reimplemented at a higher level.
 
@@ -19,7 +18,6 @@ use crate::Q;
 
 // Algorithm 13: `BytesToBits(z)` on page 21 is not needed because the pack and unpack
 // algorithms have been reimplemented at a higher level.
-
 
 /// # Algorithm 14: `CoeffFromThreeBytes(b0,b1,b2)` on page 29.
 /// Generates an element of `{0, 1, 2, ... , q − 1} ∪ {⊥}` used in rejection sampling.
@@ -60,7 +58,6 @@ pub(crate) fn coeff_from_three_bytes<const CTEST: bool>(b: [u8; 3]) -> Result<i3
     }
 }
 
-
 /// # Algorithm 15: `CoeffFromHalfByte(b)` on page 30.
 /// Generates an element of `{−η, −η + 1, ... , η} ∪ {⊥}` for n ∈ {2, 4}.
 ///
@@ -78,7 +75,8 @@ pub(crate) fn coeff_from_three_bytes<const CTEST: bool>(b: [u8; 3]) -> Result<i3
 /// # Errors
 /// Returns an error `⊥` on when eta = 4 and b > 8 for rejection sampling. (panics on b > 15)
 pub(crate) fn coeff_from_half_byte<const CTEST: bool>(
-    eta: i32, b: u8,
+    eta: i32,
+    b: u8,
 ) -> Result<i32, &'static str> {
     const M5: i32 = ((1i32 << 24) / 5) + 1;
     debug_assert!((eta == 2) || (eta == 4), "Alg 15: incorrect eta");
@@ -110,7 +108,6 @@ pub(crate) fn coeff_from_half_byte<const CTEST: bool>(
     }
 }
 
-
 /// # Algorithm 16: `SimpleBitPack(w,b)` on page 30.
 /// Encodes a polynomial `w` into a byte string. This function is not exposed to unvalidated input.
 ///
@@ -120,7 +117,11 @@ pub(crate) fn coeff_from_half_byte<const CTEST: bool>(
 pub(crate) fn simple_bit_pack(w: &R, b: i32, bytes_out: &mut [u8]) {
     debug_assert!((1..1024 * 1024).contains(&b), "Alg 16: b out of range"); // plenty of headroom
     debug_assert!(is_in_range(w, 0, b), "Alg 16: w out of range"); // early detect; repeated within bit_pack
-    debug_assert_eq!(bytes_out.len(), 32 * bit_length(b), "Alg 16: incorrect size of output bytes");
+    debug_assert_eq!(
+        bytes_out.len(),
+        32 * bit_length(b),
+        "Alg 16: incorrect size of output bytes"
+    );
 
     // 1: 𝑧 ← ()    ▷ set 𝑧 to the empty bit string
     // 2: for 𝑖 from 0 to 255 do
@@ -131,7 +132,6 @@ pub(crate) fn simple_bit_pack(w: &R, b: i32, bytes_out: &mut [u8]) {
     // Delegated to `bit_pack()` with lower range set to zero (identical functionality)
     bit_pack(w, 0, b, bytes_out);
 }
-
 
 /// # Algorithm 17: `BitPack(w,a,b)` on page 30.
 /// Encodes a polynomial `w` into a byte string.  This function is not exposed to unvalidated input.
@@ -144,7 +144,11 @@ pub(crate) fn bit_pack(w: &R, a: i32, b: i32, bytes_out: &mut [u8]) {
     debug_assert!((0..(1024 * 1024)).contains(&a), "Alg 17: a out of range");
     debug_assert!((1..(1024 * 1024)).contains(&b), "Alg 17: b out of range");
     debug_assert!(is_in_range(w, a, b), "Alg 17: w out of range");
-    debug_assert_eq!(w.0.len() * bit_length(a + b), bytes_out.len() * 8, "Alg 17: bad output size");
+    debug_assert_eq!(
+        w.0.len() * bit_length(a + b),
+        bytes_out.len() * 8,
+        "Alg 17: bad output size"
+    );
 
     // Original pseudocode
     // 1: 𝑧 ← ()    ▷ set 𝑧 to the empty bit string
@@ -181,7 +185,6 @@ pub(crate) fn bit_pack(w: &R, a: i32, b: i32, bytes_out: &mut [u8]) {
     }
 }
 
-
 /// # Algorithm 18: `SimpleBitUnpack(v,b)` on page 31.
 /// Reverses the procedure `SimpleBitPack()`.
 ///
@@ -211,7 +214,6 @@ pub(crate) fn simple_bit_unpack(v: &[u8], b: i32) -> Result<R, &'static str> {
     let w_out = bit_unpack(v, 0, b).map_err(|_| "Alg 18: w out of range")?;
     Ok(w_out)
 }
-
 
 /// # Algorithm 19: `BitUnpack(v,a,b)` on page 31.
 /// Reverses the procedure `BitPack()`.
@@ -261,7 +263,6 @@ pub(crate) fn bit_unpack(v: &[u8], a: i32, b: i32) -> Result<R, &'static str> {
     Ok(w_out)
 }
 
-
 /// # Algorithm 20: `HintBitPack(h)` on page 32.
 /// Encodes a polynomial vector `h` with binary coefficients into a byte string.
 ///
@@ -275,14 +276,20 @@ pub(crate) fn bit_unpack(v: &[u8], a: i32, b: i32) -> Result<R, &'static str> {
 ///             Security parameters `ω` (omega) and k must sum to be less than 256. <br>
 /// **Output**: A byte string `y` of length `ω + k`.
 pub(crate) fn hint_bit_pack<const CTEST: bool, const K: usize>(
-    omega: i32, h: &[R; K], y_bytes: &mut [u8],
+    omega: i32,
+    h: &[R; K],
+    y_bytes: &mut [u8],
 ) {
     let omega_u = usize::try_from(omega).expect("Alg 20: try_from fail");
-    debug_assert!((1..256).contains(&(omega_u + K)), "Alg 20: omega+K out of range");
+    debug_assert!(
+        (1..256).contains(&(omega_u + K)),
+        "Alg 20: omega+K out of range"
+    );
     debug_assert_eq!(y_bytes.len(), omega_u + K, "Alg 20: bad output size");
     debug_assert!(h.iter().all(|r| is_in_range(r, 0, 1)), "Alg 20: h not 0/1");
     debug_assert!(
-        h.iter().all(|r| r.0.iter().filter(|&e| *e == 1).sum::<i32>() <= omega),
+        h.iter()
+            .all(|r| r.0.iter().filter(|&e| *e == 1).sum::<i32>() <= omega),
         "Alg 20: too many 1's in h"
     );
 
@@ -327,7 +334,6 @@ pub(crate) fn hint_bit_pack<const CTEST: bool, const K: usize>(
     // 12: return y
 }
 
-
 /// # Algorithm 21: `HintBitUnpack(y)` on page 32.
 /// Reverses the procedure `HintBitPack()`.
 ///
@@ -338,10 +344,14 @@ pub(crate) fn hint_bit_pack<const CTEST: bool, const K: usize>(
 /// # Errors
 /// Returns an error on invalid input.
 pub(crate) fn hint_bit_unpack<const K: usize>(
-    omega: i32, y_bytes: &[u8],
+    omega: i32,
+    y_bytes: &[u8],
 ) -> Result<[R; K], &'static str> {
     let omega_u = usize::try_from(omega).expect("Alg 21: omega try_into fail");
-    debug_assert!((1..256).contains(&(omega_u + K)), "Alg 21: omega+K too large");
+    debug_assert!(
+        (1..256).contains(&(omega_u + K)),
+        "Alg 21: omega+K too large"
+    );
     debug_assert_eq!(y_bytes.len(), omega_u + K, "Alg 21: bad output size");
 
     // 1: h ∈ R^k_2 ∈ ← 0^k
@@ -405,14 +415,14 @@ pub(crate) fn hint_bit_unpack<const K: usize>(
     }
 
     debug_assert!(
-        h.iter().all(|r| r.0.iter().filter(|&&e| e == 1).sum::<i32>() <= omega),
+        h.iter()
+            .all(|r| r.0.iter().filter(|&&e| e == 1).sum::<i32>() <= omega),
         "Alg 21: too many 1's in h"
     );
 
     // 20: return h
     Ok(h)
 }
-
 
 #[cfg(test)]
 mod tests {

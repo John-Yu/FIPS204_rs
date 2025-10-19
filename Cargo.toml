@@ -7,6 +7,8 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 keywords = ["FIPS204", "lattice", "dilithium", "signature"]
 categories = ["cryptography", "no-std"]
+repository = "https://github.com/John-Yu/FIPS204_rs"
+readme = "README.md"
 # MSRV set at 1.70, This requires several marginally outdated dependencies, see below
 rust-version = "1.70"
 

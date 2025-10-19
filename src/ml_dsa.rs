@@ -642,7 +642,7 @@ pub(crate) fn private_to_public_key<const K: usize, const L: usize>(
     }
 }
 
-/// Encodes a private key struct into its byte array representation
+/// Encodes a public key struct into its byte array representation
 pub(crate) fn encode_public<const K: usize, const L: usize, const PK_LEN: usize>(
     pk: &PublicKey<K, L>,
 ) -> [u8; PK_LEN] {

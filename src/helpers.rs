@@ -141,19 +141,23 @@ pub(crate) fn infinity_norm<const ROW: usize>(w: &[R; ROW]) -> i32 {
 }
 
 /// # Algorithm 49: MontgomeryReduce(𝑎) on page 50.
-/// Computes 𝑎 ⋅ 2−32 mod 𝑞.
+/// Computes 𝑎 ⋅ 2^{−32} mod 𝑞.
 ///
 /// **Input**:  Integer 𝑎 with −2^{31}*𝑞 ≤ 𝑎 ≤ 2^{31}*𝑞.
 /// **Output**: 𝑟 ≡ 𝑎 ⋅ 2^{−32} mod 𝑞.
 #[allow(clippy::cast_possible_truncation)] // a as i32, res as i32
 pub(crate) const fn mont_reduce(a: i64) -> i32 {
-    const QINV: i32 = 58_728_449; // (Q * QINV) % 2**32 = 1
+    // 1: QINV ← 58728449    ▷ the inverse of 𝑞 modulo 2^{32}
+    const QINV: i32 = 58_728_449; // (Q * QINV) % 2^{32} = 1
     debug_assert!(a >= -17_996_808_479_301_632, "mont_reduce input (a)");
     debug_assert!(a <= 17_996_808_470_921_215, "mont_reduce input (b)");
+    // 2: 𝑡 ← ((𝑎 mod 2^{32}) ⋅ QINV) mod 2^{32}
     let t = (a as i32).wrapping_mul(QINV);
+    // 3: 𝑟 ← (𝑎 − 𝑡 ⋅ 𝑞)/2^{32}
     let res = (a - (t as i64).wrapping_mul(Q as i64)) >> 32;
     debug_assert!(res < (Q as i64), "mont_reduce output 1");
     debug_assert!(-(Q as i64) < res, "mont_reduce output 2");
+    // 4:return 𝑟
     res as i32
 }
 

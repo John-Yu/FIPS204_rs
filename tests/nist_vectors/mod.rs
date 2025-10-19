@@ -107,29 +107,21 @@ fn test_siggen() {
             rnd.push(&seed);
 
             if test_group["parameterSet"] == "ML-DSA-44" {
-                let sk = <MlDsa44 as KeyGen>::PrivateKey::try_from_bytes(
-                    &sk_bytes.clone().try_into().unwrap(),
-                )
-                .unwrap();
+                let sk = <MlDsa44 as KeyGen>::PrivateKey::try_from(sk_bytes.as_slice()).unwrap();
                 //let sig_act = sk.try_sign_with_rng(&mut rnd, &message, &[]).unwrap();
                 let sig_act = MlDsa44::_internal_sign(&sk, &message, &[], seed).unwrap();
                 assert_eq!(sig_exp, sig_act);
             }
 
             if test_group["parameterSet"] == "ML-DSA-65" {
-                let sk = <MlDsa65 as KeyGen>::PrivateKey::try_from_bytes(
-                    &sk_bytes.clone().try_into().unwrap(),
-                )
-                .unwrap();
+                let sk = <MlDsa65 as KeyGen>::PrivateKey::try_from(sk_bytes.as_slice()).unwrap();
                 //let sig_act = sk.try_sign_with_rng(&mut rnd, &message, &[]).unwrap();
                 let sig_act = MlDsa65::_internal_sign(&sk, &message, &[], seed).unwrap();
                 assert_eq!(sig_exp, sig_act);
             }
 
             if test_group["parameterSet"] == "ML-DSA-87" {
-                let sk =
-                    <MlDsa87 as KeyGen>::PrivateKey::try_from_bytes(&sk_bytes.try_into().unwrap())
-                        .unwrap();
+                let sk = <MlDsa87 as KeyGen>::PrivateKey::try_from(sk_bytes.as_slice()).unwrap();
                 //let sig_act = sk.try_sign_with_rng(&mut rnd, &message, &[]).unwrap();
                 let sig_act = MlDsa87::_internal_sign(&sk, &message, &[], seed).unwrap();
                 assert_eq!(sig_exp, sig_act);
@@ -154,10 +146,7 @@ fn test_sigver() {
             let test_passed = test["testPassed"].as_bool().unwrap();
 
             if test_group["parameterSet"] == "ML-DSA-44" {
-                let pk = <MlDsa44 as KeyGen>::PublicKey::try_from_bytes(
-                    &pk_bytes.clone().try_into().unwrap(),
-                )
-                .unwrap();
+                let pk = <MlDsa44 as KeyGen>::PublicKey::try_from(pk_bytes.as_slice()).unwrap();
                 let res = MlDsa44::_internal_verify(
                     &pk,
                     &message,
@@ -168,10 +157,7 @@ fn test_sigver() {
             }
 
             if test_group["parameterSet"] == "ML-DSA-65" {
-                let pk = <MlDsa65 as KeyGen>::PublicKey::try_from_bytes(
-                    &pk_bytes.clone().try_into().unwrap(),
-                )
-                .unwrap();
+                let pk = <MlDsa65 as KeyGen>::PublicKey::try_from(pk_bytes.as_slice()).unwrap();
                 let res = MlDsa65::_internal_verify(
                     &pk,
                     &message,
@@ -182,10 +168,7 @@ fn test_sigver() {
             }
 
             if test_group["parameterSet"] == "ML-DSA-87" {
-                let pk = <MlDsa87 as KeyGen>::PublicKey::try_from_bytes(
-                    &pk_bytes.clone().try_into().unwrap(),
-                )
-                .unwrap();
+                let pk = <MlDsa87 as KeyGen>::PublicKey::try_from(pk_bytes.as_slice()).unwrap();
                 let res = MlDsa87::_internal_verify(
                     &pk,
                     &message,

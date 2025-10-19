@@ -73,9 +73,8 @@ pub use traits::{KeyGen, SerDes, Signer, Verifier};
 use types::Ph;
 
 // Applies across all security parameter sets
-const Q: i32 = 8_380_417; // 2^23 - 2^13 + 1 = 0x7FE001; page 15 table 1 first row
-const ZETA: i32 = 1753; // See section 2.5 of FIPS 204; page 15 table 1 second row
-const D: u32 = 13; // See page 15 table 1 third row
+pub(crate) const Q: i32 = 8_380_417; // 2^23 - 2^13 + 1 = 0x7FE001; page 15 table 1 first row
+pub(crate) const D: u32 = 13; // See page 15 table 1 third row
 
 // This common functionality is injected into each security parameter set, and is
 // largely a lightweight wrapper into the ml_dsa functions.
@@ -187,9 +186,18 @@ macro_rules! functionality {
         fn private_to_public_key(sk: &Self::PrivateKey) -> Self::PublicKey {
             ml_dsa::private_to_public_key::<{ Self::K }, { Self::L }>(sk)
         }
+        fn public_try_from(v: &[u8]) -> Result<Self::PublicKey, &'static str> {
+            let pk: Self::PublicKeyEncoded = v.try_into().map_err(|_| "Invalid length")?;
+            Self::expand_public(&pk)
+        }
+        fn private_try_from(v: &[u8]) -> Result<Self::PrivateKey, &'static str> {
+            let sk: Self::PrivateKeyEncoded = v.try_into().map_err(|_| "Invalid length")?;
+            Self::expand_private(&sk)
+        }
     };
 }
 
+/// The `MlDsa44ParameterSet` struct defines the parameters for the ML-DSA-44 security level.
 #[derive(Clone, Debug)]
 pub struct MlDsa44ParameterSet;
 
@@ -210,6 +218,7 @@ impl ParameterSet for MlDsa44ParameterSet {
     functionality!();
 }
 
+/// The `MlDsa65ParameterSet` struct defines the parameters for the ML-DSA-65 security level.
 #[derive(Clone, Debug)]
 pub struct MlDsa65ParameterSet;
 
@@ -230,6 +239,7 @@ impl ParameterSet for MlDsa65ParameterSet {
     functionality!();
 }
 
+/// The `MlDsa87ParameterSet` struct defines the parameters for the ML-DSA-87 security level.
 #[derive(Clone, Debug)]
 pub struct MlDsa87ParameterSet;
 
@@ -253,12 +263,12 @@ impl ParameterSet for MlDsa87ParameterSet {
 /// The `PublicKey` struct is a container for a public key specific to a given `ParameterSet`.
 #[derive(Clone, Debug)]
 pub struct PublicKey<P: ParameterSet> {
-    pub pk: P::PublicKey,
+    pub(crate) pk: P::PublicKey,
 }
 /// The `PrivateKey` struct is a container for a private key specific to a given `ParameterSet`.
 #[derive(Clone, Debug)]
 pub struct PrivateKey<P: ParameterSet> {
-    pub sk: P::PrivateKey,
+    pub(crate) sk: P::PrivateKey,
 }
 
 /// The `MlDsa` struct is a container for ML-DSA operations parameterized by a specific
@@ -313,6 +323,7 @@ impl<P: ParameterSet> MlDsa<P> {
     }
 }
 
+// Implement the KeyGen traits for MlDsa
 impl<P: ParameterSet> KeyGen for MlDsa<P> {
     type PublicKey = PublicKey<P>;
     type PrivateKey = PrivateKey<P>;
@@ -330,6 +341,7 @@ impl<P: ParameterSet> KeyGen for MlDsa<P> {
     }
 }
 
+// Implement the Signer traits for PrivateKey
 impl<P: ParameterSet> Signer for PrivateKey<P> {
     type Signature = P::Signature;
     type PublicKey = PublicKey<P>;
@@ -409,6 +421,7 @@ impl<P: ParameterSet> Signer for PrivateKey<P> {
     }
 }
 
+// Implement the Verifier traits for PublicKey
 impl<P: ParameterSet> Verifier for PublicKey<P> {
     type Signature = P::Signature;
 
@@ -448,6 +461,7 @@ impl<P: ParameterSet> Verifier for PublicKey<P> {
     }
 }
 
+// Implement serialization/deserialization for PublicKey and PrivateKey
 impl<P: ParameterSet> SerDes for PublicKey<P> {
     type ByteArray = P::PublicKeyEncoded;
 
@@ -470,6 +484,25 @@ impl<P: ParameterSet> SerDes for PrivateKey<P> {
 
     fn try_from_bytes(ba: &Self::ByteArray) -> Result<Self, &'static str> {
         let sk = P::expand_private(ba)?;
+        Ok(PrivateKey { sk })
+    }
+}
+
+// Implement TryFrom<&[u8]> for PublicKey and PrivateKey
+impl<P: ParameterSet> TryFrom<&[u8]> for PublicKey<P> {
+    type Error = &'static str;
+
+    fn try_from(v: &[u8]) -> Result<Self, Self::Error> {
+        let pk = P::public_try_from(v)?;
+        Ok(PublicKey { pk })
+    }
+}
+
+impl<P: ParameterSet> TryFrom<&[u8]> for PrivateKey<P> {
+    type Error = &'static str;
+
+    fn try_from(v: &[u8]) -> Result<Self, Self::Error> {
+        let sk = P::private_try_from(v)?;
         Ok(PrivateKey { sk })
     }
 }

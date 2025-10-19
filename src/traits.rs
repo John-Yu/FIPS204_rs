@@ -3,7 +3,7 @@ use crate::types::Ph;
 use crate::Q;
 #[cfg(feature = "default-rng")]
 use rand_core::OsRng;
-use rand_core::{CryptoRng, CryptoRngCore, RngCore};
+use rand_core::{CryptoRng, CryptoRngCore, RngCore}; // Import Vec from alloc
 
 /// The `KeyGen` trait is defined to allow trait objects for keygen.
 pub trait KeyGen {
@@ -332,6 +332,8 @@ pub trait ParameterSet {
     /// # Errors
     /// Returns an error on malformed public key.
     fn expand_public(pk: &Self::PublicKeyEncoded) -> Result<Self::PublicKey, &'static str>;
+    fn public_try_from(v: &[u8]) -> Result<Self::PublicKey, &'static str>;
+    fn private_try_from(v: &[u8]) -> Result<Self::PrivateKey, &'static str>;
     /// Encodes a private key struct into its byte array representation
     fn encode_private(sk: &Self::PrivateKey) -> Self::PrivateKeyEncoded;
     /// Encodes a public key struct into its byte array representation

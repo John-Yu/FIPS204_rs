@@ -1,7 +1,7 @@
 [package]
 name = "fips204_rs"
 description = "FIPS 204: Module-Lattice-Based Digital Signature"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["John Yu <cb8866@sina.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"

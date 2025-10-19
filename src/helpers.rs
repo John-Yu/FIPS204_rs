@@ -1,5 +1,7 @@
 use crate::types::{R, T, T0};
-use crate::{Q, ZETA};
+use crate::Q;
+
+pub(crate) const ZETA: i32 = 1753; // See section 2.5 of FIPS 204; page 15 table 1 second row
 
 // Some arith routines leverage dilithium https://github.com/PQClean/PQClean/tree/master/crypto_sign
 

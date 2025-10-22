@@ -56,7 +56,7 @@ pub(crate) fn ntt<const KL: usize>(w: &[R; KL]) -> [T; KL] {
                 }
 
                 // 16: start ← start + 2 · len
-                start += 2 * len;
+                start += len << 1;
 
                 // 17: end while
             }
@@ -112,7 +112,7 @@ pub(crate) fn inv_ntt<const KL: usize>(w_hat: &[T; KL]) -> [R; KL] {
                 m -= 1;
 
                 // 10: zeta ← −ζ^{brv(k)} mod q    ▷ 𝑧 ← −𝜁 BitRev8 (𝑚) mod 𝑞
-                let zeta = -ZETA_TABLE_MONT[m];
+                let zeta = -i64::from(ZETA_TABLE_MONT[m]);
 
                 // 11: for j from start to start + len − 1 do
                 for j in start..(start + len) {
@@ -124,16 +124,16 @@ pub(crate) fn inv_ntt<const KL: usize>(w_hat: &[T; KL]) -> [R; KL] {
                     w_poly.0[j] = t + w_poly.0[j + len];
 
                     // 14: w_{j+len} ← t − w_{j+len}
-                    w_poly.0[j + len] = t - w_poly.0[j + len];
+                    let w = i64::from(t - w_poly.0[j + len]);
 
                     // 15: w_{j+len} ← zeta · w_{j+len}
-                    w_poly.0[j + len] = mont_reduce(i64::from(zeta) * i64::from(w_poly.0[j + len]));
+                    w_poly.0[j + len] = mont_reduce(zeta * w);
 
                     // 16: end for
                 }
 
                 // 17: start ← start + 2 · len
-                start += 2 * len;
+                start += len << 1;
 
                 // 18: end while
             }

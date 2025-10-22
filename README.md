@@ -65,15 +65,15 @@ Thanks to Eric Schorn.
 
 | function | times |
 |:-:|:-:|
-| ml_dsa_44 keygen |time:   [132.91 µs 133.88 µs 135.03 µs] |
-| ml_dsa_65 keygen |time:   [235.96 µs 237.67 µs 239.64 µs] |
-| ml_dsa_87 keygen |time:   [356.61 µs 361.96 µs 367.96 µs] |
-| ml_dsa_44 sk sign |time:   [360.91 µs 366.19 µs 371.71 µs] |
-| ml_dsa_65 sk sign |time:   [575.04 µs 584.61 µs 595.25 µs] |
-| ml_dsa_87 sk sign |time:   [676.77 µs 687.46 µs 697.95 µs] |
-| ml_dsa_44 pk verify |time:   [90.191 µs 90.879 µs 91.574 µs] |
-| ml_dsa_65 pk verify |time:   [152.40 µs 153.69 µs 155.07 µs] |
-| ml_dsa_87 pk verify |time:   [259.22 µs 261.59 µs 264.03 µs] |
+| ml_dsa_44 keygen |time:   [113.13 µs 113.30 µs 113.53 µs] |
+| ml_dsa_65 keygen |time:   [200.16 µs 200.36 µs 200.60 µs] |
+| ml_dsa_87 keygen |time:   [298.31 µs 298.52 µs 298.78 µs] |
+| ml_dsa_44 sk sign |time:   [295.14 µs 297.91 µs 300.87 µs] |
+| ml_dsa_65 sk sign |time:   [476.08 µs 481.52 µs 487.08 µs] |
+| ml_dsa_87 sk sign |time:   [590.45 µs 596.85 µs 603.41 µs] |
+| ml_dsa_44 pk verify |time:   [81.748 µs 81.793 µs 81.840 µs] |
+| ml_dsa_65 pk verify |time:   [136.72 µs 136.98 µs 137.32 µs] |
+| ml_dsa_87 pk verify |time:   [236.14 µs 236.57 µs 237.14 µs] |
 
 ### Authors
 

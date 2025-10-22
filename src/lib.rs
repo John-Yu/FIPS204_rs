@@ -275,7 +275,7 @@ pub struct PrivateKey<P: ParameterSet> {
 /// `ParameterSet`.
 #[derive(Debug)]
 pub struct MlDsa<P: ParameterSet> {
-    _params: P::Signature,
+    _params: core::marker::PhantomData<P>,
 }
 
 // for test

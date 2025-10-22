@@ -75,7 +75,8 @@ pub(crate) const fn full_reduce32(a: i32) -> i32 {
 // Note: this is only used on 'fixed' security parameters (not secret values), so as not to impact CT
 /// Bit length required to express `a` in bits
 pub(crate) const fn bit_length(x: i32) -> usize {
-    x.ilog2() as usize + 1
+    //x.ilog2() as usize + 1
+    32 - x.leading_zeros() as usize
 }
 
 /// Mod +/- see definition on page 6.

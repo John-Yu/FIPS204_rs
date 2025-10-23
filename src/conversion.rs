@@ -78,19 +78,14 @@ pub(crate) fn coeff_from_half_byte<const CTEST: bool>(
     eta: i32,
     b: u8,
 ) -> Result<i32, &'static str> {
-    const M5: i32 = ((1i32 << 24) / 5) + 1;
     debug_assert!((eta == 2) || (eta == 4), "Alg 15: incorrect eta");
     debug_assert!(b < 16, "Alg 15: b out of range"); // Note other cases involving b/eta will fall through to Err()
 
     let b = i32::from(if CTEST { b & 0x07 } else { b });
     // 1: if η = 2 and b < 15 then return 2 − (b mod 5)    ▷ rejection sampling from {−2, … , 2}
     if (eta == 2) && (b < 15) {
-        // note b<15, not b<16
-        let quot = (b * M5) >> 24;
-        let rem = b - quot * 5;
-        Ok(2 - rem)
-
-        // 2: else
+        Ok(2 - b % 5)
+    // 2: else
     } else {
         //
         // 3: if η = 4 and b < 9 then return 4 − b   ▷ rejection sampling from {−4, … , 4}
